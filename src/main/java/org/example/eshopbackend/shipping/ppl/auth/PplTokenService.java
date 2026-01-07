@@ -3,11 +3,13 @@ package org.example.eshopbackend.shipping.ppl.auth;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.eshopbackend.config.PplProps;
+import org.example.eshopbackend.exception.PplAccountMissingException;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException; // Důležitý import
 
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicReference;
@@ -53,6 +55,12 @@ public class PplTokenService {
                 .bodyValue(form)
                 .retrieve()
                 .bodyToMono(TokenResponse.class)
+                // --- ZDE JE TA ZMĚNA ---
+                .onErrorMap(WebClientResponseException.BadRequest.class, ex -> {
+                    log.error("PPL Login selhal: Neplatné údaje nebo chybějící účet. PPL vrátilo 400.");
+                    return new PplAccountMissingException("Nemáte PPL účet (nebo jsou špatné přihlašovací údaje)");
+                })
+                // -----------------------
                 .block();
 
         if (resp == null || resp.access_token == null) {

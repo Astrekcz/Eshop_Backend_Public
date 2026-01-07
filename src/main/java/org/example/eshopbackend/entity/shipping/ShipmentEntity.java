@@ -92,4 +92,27 @@ public class ShipmentEntity {
 
     @PreUpdate
     void preUpdate() { updatedAt = Instant.now(); }
+
+    // ... uvnitř třídy ShipmentEntity ...
+
+    // TOTO PŘIDEJ (přepíšeme Lombok setter):
+    public void setStatus(ShipmentStatus status) {
+        // Pokud se stav mění a není to jen inicializace
+        if (this.status != null && !this.status.equals(status)) {
+            // Vytvoříme výjimku jen proto, abychom viděli STACKTRACE (kdo to zavolal)
+            Exception pastNaVinika = new Exception("!!! ZMĚNA STAVU ZÁSILKY !!!");
+
+            // Vypíšeme to do logu jako ERROR
+            org.slf4j.LoggerFactory.getLogger(ShipmentEntity.class).error(
+                    "!!! POZOR !!! Změna stavu ID={} z '{}' na '{}'. Kdo to volá?",
+                    this.shipmentId,
+                    this.status,
+                    status,
+                    pastNaVinika // Tady se vypíše celá cesta kódum
+            );
+        }
+        this.status = status;
+    }
+
+// ...
 }

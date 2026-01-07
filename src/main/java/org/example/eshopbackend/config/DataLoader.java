@@ -14,8 +14,8 @@ import org.example.eshopbackend.entity.shipping.ShipmentEntity;
 import org.example.eshopbackend.entity.shipping.ShipmentStatus;
 import org.example.eshopbackend.mapper.OrderMapper;
 import org.example.eshopbackend.repository.OrderRepository;
-import org.example.eshopbackend.repository.UserRepository;
 import org.example.eshopbackend.repository.ShipmentRepository;
+import org.example.eshopbackend.repository.UserRepository;
 import org.example.eshopbackend.util.VsUtil;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.io.ClassPathResource;
@@ -25,7 +25,6 @@ import org.springframework.stereotype.Component;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 @Component
 @RequiredArgsConstructor
@@ -44,7 +43,7 @@ public class DataLoader implements CommandLineRunner {
     public void run(String... args) throws Exception {
         loadUsers();
         loadOrders();
-        applySeedShipments(); // volitelné: pokud existuje startup_data/shipments.json
+        applySeedShipments();
     }
 
     /* === USERS === */
@@ -130,98 +129,75 @@ public class DataLoader implements CommandLineRunner {
                 log.info("Seeded order {} (status {})", entity.getOrderNumber(), entity.getOrderStatus());
             }
         }
-
     }
 
-    /* === SHIPMENTS (volitelné) === */
+    /* === SHIPMENTS === */
     private void applySeedShipments() throws Exception {
         var res = new ClassPathResource("startup_data/shipments.json");
-        if (res.exists()) {
-            try (InputStream is = res.getInputStream()) {
-                JsonNode root = objectMapper.readTree(is);
-                if (root == null || !root.isArray() || root.size() == 0) {
-                    log.info("startup_data/shipments.json empty – skipping.");
-                    return;
-                }
-                for (JsonNode n : root) {
-                    String orderNumber = text(n, "orderNumber");
-                    String tracking    = text(n, "trackingNumber");
-                    String statusStr   = text(n, "status"); // NEW/REQUESTED/LABEL_READY/HANDED_OVER/IN_TRANSIT/DELIVERED/CANCELLED/ERROR
 
-                    if (isBlank(orderNumber) || isBlank(tracking) || isBlank(statusStr)) {
-                        log.warn("Shipments seed row missing fields: {}", n);
-                        continue;
-                    }
-
-                    var orderOpt = orderRepository.findByOrderNumber(orderNumber);
-                    if (orderOpt.isEmpty()) {
-                        log.warn("Order {} not found for shipments seed", orderNumber);
-                        continue;
-                    }
-                    var order = orderOpt.get();
-
-                    ShipmentEntity sh = shipmentRepository.findByOrder(order).orElseGet(() -> {
-                        ShipmentEntity s = new ShipmentEntity();
-                        s.setOrder(order);
-                        return s;
-                    });
-
-                    ShipmentStatus sst = parseStatus(statusStr);
-                    sh.setTrackingNumber(tracking);
-                    sh.setStatus(sst);
-                    shipmentRepository.save(sh);
-
-                    // === mapování ShipmentStatus -> OrderStatus ===
-                    switch (sst) {
-                        case REQUESTED, LABEL_READY, HANDED_OVER, IN_TRANSIT -> {
-                            if (order.getOrderStatus() != OrderStatus.CANCELED) {
-                                order.setOrderStatus(OrderStatus.SHIPPED);
-                            }
-                        }
-                        case DELIVERED -> order.setOrderStatus(OrderStatus.DELIVERED);
-                        case CANCELLED -> order.setOrderStatus(OrderStatus.CANCELED);
-                        case NEW, ERROR -> {
-                            // NEW: u nás vytvořeno – objednávku necháváme
-                            // ERROR: necháme objednávku tak jak je, jen log
-                            log.info("Order {} shipment status {}, order status unchanged ({})",
-                                    orderNumber, sst, order.getOrderStatus());
-                        }
-                    }
-
-                    orderRepository.save(order);
-                    log.info("Seeded shipment for order {} -> {} ({})",
-                            orderNumber, tracking, sst);
-                }
-            }
+        // ZMĚNA: Pokud soubor neexistuje, prostě končíme. Žádné automatické generování nesmyslů.
+        if (!res.exists()) {
             return;
         }
 
-        // Fallback simulace: když shipments.json chybí, označ pár posledních objednávek jako předané kurýrovi
-        var recent = orderRepository.findTop10ByOrderByOrderIdDesc();
-        int injected = 0;
-        for (var order : recent) {
-            if (injected >= 3) break;
-            if (shipmentRepository.findByOrder(order).isPresent()) continue;
-
-            ShipmentEntity sh = new ShipmentEntity();
-            sh.setOrder(order);
-            sh.setTrackingNumber(generateMockPplTracking());
-            sh.setStatus(ShipmentStatus.HANDED_OVER); // => SHIPPED na objednávce
-            shipmentRepository.save(sh);
-
-            if (order.getOrderStatus() != OrderStatus.CANCELED) {
-                order.setOrderStatus(OrderStatus.SHIPPED);
-                orderRepository.save(order);
+        try (InputStream is = res.getInputStream()) {
+            JsonNode root = objectMapper.readTree(is);
+            if (root == null || !root.isArray() || root.size() == 0) {
+                log.info("startup_data/shipments.json empty – skipping.");
+                return;
             }
+            for (JsonNode n : root) {
+                String orderNumber = text(n, "orderNumber");
+                String tracking    = text(n, "trackingNumber");
+                String statusStr   = text(n, "status");
 
-            injected++;
-            log.info("Mocked shipment for order {} -> {}", order.getOrderNumber(), sh.getTrackingNumber());
+                if (isBlank(orderNumber) || isBlank(tracking) || isBlank(statusStr)) {
+                    log.warn("Shipments seed row missing fields: {}", n);
+                    continue;
+                }
+
+                var orderOpt = orderRepository.findByOrderNumber(orderNumber);
+                if (orderOpt.isEmpty()) {
+                    log.warn("Order {} not found for shipments seed", orderNumber);
+                    continue;
+                }
+                var order = orderOpt.get();
+
+                ShipmentEntity sh = shipmentRepository.findByOrder(order).orElseGet(() -> {
+                    ShipmentEntity s = new ShipmentEntity();
+                    s.setOrder(order);
+                    return s;
+                });
+
+                ShipmentStatus sst = parseStatus(statusStr);
+                sh.setTrackingNumber(tracking);
+                sh.setStatus(sst);
+                shipmentRepository.save(sh);
+
+                // === mapování ShipmentStatus -> OrderStatus ===
+                switch (sst) {
+                    case REQUESTED, LABEL_READY, HANDED_OVER, IN_TRANSIT -> {
+                        if (order.getOrderStatus() != OrderStatus.CANCELED) {
+                            order.setOrderStatus(OrderStatus.SHIPPED);
+                        }
+                    }
+                    case DELIVERED -> order.setOrderStatus(OrderStatus.DELIVERED);
+                    case CANCELLED -> order.setOrderStatus(OrderStatus.CANCELED);
+                    case NEW, ERROR -> {
+                        log.info("Order {} shipment status {}, order status unchanged ({})",
+                                orderNumber, sst, order.getOrderStatus());
+                    }
+                }
+
+                orderRepository.save(order);
+                log.info("Seeded shipment for order {} -> {} ({})",
+                        orderNumber, tracking, sst);
+            }
         }
     }
 
     /* === Helpers === */
 
-    /** Prefix podle aktuálního roku + 5místné pořadí, např. 2025-00043. */
     private String generateOrderNumber() {
         String year = String.valueOf(java.time.Year.now().getValue());
         String prefix = year + "-";
@@ -230,7 +206,7 @@ public class DataLoader implements CommandLineRunner {
 
         int nextSeq = 1;
         if (last.isPresent()) {
-            String lastNumber = last.get().getOrderNumber(); // např. 2025-00042
+            String lastNumber = last.get().getOrderNumber();
             String[] parts = lastNumber.split("-");
             if (parts.length == 2) {
                 try {
@@ -257,10 +233,5 @@ public class DataLoader implements CommandLineRunner {
 
     private boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
-    }
-
-    private String generateMockPplTracking() {
-        // jednoduchý mock (není to reálný formát)
-        return "PPL" + System.currentTimeMillis() + (100 + new Random().nextInt(900));
     }
 }
