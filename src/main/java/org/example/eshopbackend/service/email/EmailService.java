@@ -95,6 +95,29 @@ public class EmailService {
         } catch (Exception ex) { log.warn("Failed to attach terms PDF: {}", ex.getMessage()); }
     }
 
+    // === NOVÁ METODA ===
+    public void sendVerificationCode(String email, String code) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            // false = neposíláme multipart přílohy, jen HTML
+            MimeMessageHelper helper = new MimeMessageHelper(message, false, StandardCharsets.UTF_8.name());
+
+            helper.setFrom(from);
+            helper.setTo(email);
+            helper.setSubject("Váš ověřovací kód: " + code);
+
+            // Vygenerujeme HTML pomocí builderu
+            String html = htmlBuilder.buildVerificationCodeHtml(code);
+            helper.setText(html, true); // true = isHtml
+
+            mailSender.send(message);
+            log.info("Ověřovací email odeslán na: {}", email);
+        } catch (Exception e) {
+            log.error("Chyba při odesílání ověřovacího kódu na {}", email, e);
+            throw new RuntimeException("Nepodařilo se odeslat ověřovací e-mail", e);
+        }
+    }
+
     private Long toHaler(Number czk) { return czk == null ? null : czk.longValue() * 100L; }
     private String safeVs(OrderEntity o) {
         if (StringUtils.hasText(o.getBankVs())) return o.getBankVs().replaceAll("\\D+", "");

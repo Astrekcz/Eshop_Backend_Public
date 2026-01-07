@@ -66,6 +66,8 @@ public class WebSecurityConfigurer {
                         .requestMatchers("/api/catalog/**").permitAll()
                         .requestMatchers("/api/order/**").permitAll()
                         .requestMatchers("/api/payments/**").permitAll()
+                        .requestMatchers("/api/verification/send").permitAll()
+                        .requestMatchers("/api/verification/verify").permitAll()
                         .requestMatchers("/api/shipping/ppl/_diag/**").hasRole("ADMIN")
                         .requestMatchers("/api/shipping/**").hasRole("ADMIN")
 

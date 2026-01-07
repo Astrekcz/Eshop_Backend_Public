@@ -137,6 +137,25 @@ public class EmailHtmlBuilder {
                 escape(orEmpty(o.getShipPostalCode())), escape(orEmpty(o.getShipCity())), escape(orEmpty(o.getShipCountryCode())), (StringUtils.hasText(o.getCustomerPhone()) ? "<p style=\"margin:0\">Tel: " + escape(o.getCustomerPhone()) + "</p>" : ""), sellerBlockHtml());
     }
 
+    // === NOVÁ METODA PRO OVĚŘOVACÍ KÓD ===
+    public String buildVerificationCodeHtml(String code) {
+        return """
+            <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.45;color:#222">
+              <h2 style="margin:0 0 16px 0">Ověření e-mailové adresy</h2>
+              <p style="margin:4px 0">Pro dokončení ověření zadejte prosím následující kód:</p>
+              
+              <div style="background:#f4f4f5;border:1px solid #e4e4e7;border-radius:8px;padding:24px;text-align:center;margin:24px 0;">
+                <span style="font-size:32px;font-weight:bold;letter-spacing:4px;color:#18181b;font-family:monospace">%s</span>
+              </div>
+              
+              <p style="margin:4px 0;color:#555;font-size:14px">Kód je platný po omezenou dobu. Pokud jste o tento kód nežádali, tento e-mail ignorujte.</p>
+              
+              <hr style="margin:20px 0;border:none;border-top:1px solid #eee" />
+              <h4 style="margin:0 0 6px 0">Kontakt prodejce</h4>%s
+            </div>
+        """.formatted(escape(code), sellerBlockHtml());
+    }
+
     private String sellerBlockHtml() {
         StringBuilder sb = new StringBuilder();
         sb.append("<p style=\"margin:0\"><b>").append(escape(sellerName)).append("</b></p>");
