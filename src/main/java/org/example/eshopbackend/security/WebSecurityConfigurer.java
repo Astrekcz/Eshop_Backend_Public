@@ -106,7 +106,7 @@ public class WebSecurityConfigurer {
 
         cfg.setAllowedOriginPatterns(Arrays.asList(
 
-                "https://https://eshop-frontend-kappa.vercel.app/",
+                "https://eshop-frontend-kappa.vercel.app",
                 "http://localhost:*",
                 "http://127.0.0.1:*"
         ));
