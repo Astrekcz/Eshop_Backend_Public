@@ -48,7 +48,7 @@ public class DataLoader implements CommandLineRunner {
 
     /* === USERS === */
     private void loadUsers() throws Exception {
-        var res = new ClassPathResource("startup_data/users.json");
+        var res = new ClassPathResource("static/users.json");
         if (!res.exists()) {
             log.info("No startup users (startup_data/users.json missing) – skipping.");
             return;

@@ -105,9 +105,8 @@ public class WebSecurityConfigurer {
         CorsConfiguration cfg = new CorsConfiguration();
 
         cfg.setAllowedOriginPatterns(Arrays.asList(
-                "https://*.zeniq.cz",
-                "https://zeniq.cz",
-                "https://zeniq-eshop.vercel.app",
+
+                "https://https://eshop-frontend-kappa.vercel.app/",
                 "http://localhost:*",
                 "http://127.0.0.1:*"
         ));
