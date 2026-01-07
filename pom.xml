@@ -6,7 +6,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.5.4</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
     <groupId>org.example</groupId>
     <artifactId>eshopBackend</artifactId>
@@ -30,8 +30,6 @@
         <java.version>17</java.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <lombok.version>1.18.32</lombok.version>
-
-
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
@@ -56,21 +54,16 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.7.7</version>
         </dependency>
-
-        <!-- MapStruct API -->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
         </dependency>
-
-        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -78,8 +71,6 @@
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
-
-        <!-- JWT -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -97,30 +88,24 @@
             <version>0.11.2</version>
             <scope>runtime</scope>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>core</artifactId>
             <version>3.5.3</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>javase</artifactId>
             <version>3.5.3</version>
         </dependency>
-
-        <!-- Testy -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -136,12 +121,9 @@
             <artifactId>libphonenumber</artifactId>
             <version>8.13.43</version>
         </dependency>
-
-
     </dependencies>
 
     <build>
-        <!-- 🔧 Resources: nefiltrovat application*.properties (jinak se bije se Spring ${...}) -->
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -155,7 +137,6 @@
                     <exclude>application*.properties</exclude>
                 </excludes>
             </resource>
-
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
@@ -163,7 +144,6 @@
                     <include>application*.properties</include>
                 </includes>
             </resource>
-
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
@@ -172,12 +152,12 @@
                     <include>**/*.png</include>
                     <include>**/*.jpg</include>
                     <include>**/*.ico</include>
+                    <include>**/*.json</include>
                 </includes>
             </resource>
         </resources>
 
         <plugins>
-            <!-- compiler + annotation processors -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
@@ -203,32 +183,26 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
-
-            <!-- resources plugin: vynucený UTF-8 -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.3.1</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
-                    <!-- pokud bys chtěl templating v properties, přepni delimitery na @...@ a povol filtering -->
-                    <!-- <useDefaultDelimiters>false</useDefaultDelimiters> -->
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
+
     <profiles>
         <profile>
             <id>production</id>
             <properties>
-
                 <spring.profiles.active>prod</spring.profiles.active>
             </properties>
         </profile>
     </profiles>
-
 </project>
