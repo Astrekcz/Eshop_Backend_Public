@@ -7,14 +7,14 @@
 
 Vítejte v repozitáři backendové části mého fullstack e-shopu. Jedná se o plně funkční produkční aplikaci. Backend (Railway) obsluhuje Frontend (Vercel) v reálném čase.
 
-Projekt demonstruje kompletní životní cyklus objednávky: od registrace, přes validaci a generování platebních QR kódů, až po logistiku a správu v administraci.
+Projekt demonstruje kompletní životní cyklus objednávky: od registrace a verifikace e-mailu, přes validaci a generování platebních QR kódů, až po logistiku a správu v administraci.
 
- **Live Aplikace (Frontend):** [https://eshop-frontend-kappa.vercel.app/](https://eshop-frontend-kappa.vercel.app/)
+**Live Aplikace (Frontend):** [https://eshop-frontend-kappa.vercel.app/](https://eshop-frontend-kappa.vercel.app/)
 *(Aplikace je plně interaktivní a komunikuje s tímto backendem)*
 
 ---
 
-##  Demo Účty & Přístup
+## Demo Účty & Přístup
 
 Aplikaci si můžete vyzkoušet zaregistrováním vlastního uživatelského účtu na frontendu.
 
@@ -37,14 +37,15 @@ Aplikace obsahuje robustní administrátorskou sekci (Role `ADMIN`):
 * **Správa objednávek:** Kompletní přehled objednávek, detailní náhledy, manuální změna stavů a řešení storen.
 * **Integrace PPL (Logistika):** Backend komunikuje s API dopravce.
     * **Generování štítků:** Admin může přímo z detailu objednávky vygenerovat a **stáhnout PDF štítek** pro balík.
-    *  *Poznámka:* V této demo verzi je volání na produkční PPL servery vypnuté (chybějící privátní klíče), logika integrace je však v kódu plně implementována.
+    * *Poznámka:* V této demo verzi je volání na produkční PPL servery vypnuté (chybějící privátní klíče), logika integrace je však v kódu plně implementována.
 
 ### 3. Platby
-* **Smart Platby:** Backend dynamicky generuje validní SEPA QR kód (SPAYD standard) pro okamžitou platbu převodem ihned po vytvoření objednávky.
+* **Smart Platby:** Backend dynamicky generuje validní QR kód (český standard SPAYD) pro okamžitou platbu v CZK ihned po vytvoření objednávky.
 
 ### 4. Bezpečnost a Uživatelé
 * **Autentizace:** Stateless autentizace a autorizace pomocí JWT (JSON Web Tokens).
 * **Validace:** Kontrola plnoletosti (Adult check) při nákupu specifického zboží.
+* **E-mailová Verifikace:** Proces ověření vlastnictví e-mailové adresy při registraci pomocí jednorázového kódu (OTP), který backend odesílá přes SMTP server.
 * **Správa profilu:** Uživatel má možnost spravovat své osobní údaje a měnit přístupové heslo.
 * **Role Management:** Striktní oddělení endpointů v Security Filter Chain:
     * `USER`: Nákup, historie vlastních objednávek, správa profilu.
@@ -56,11 +57,12 @@ Aplikace obsahuje robustní administrátorskou sekci (Role `ADMIN`):
 
 ---
 
-##  API Endpointy (Výběr)
+## API Endpointy (Výběr)
 Backend vystavuje REST API pro SPA frontend.
 
 ### Public (Veřejné)
-* `POST /api/auth/register` - Registrace uživatele
+* `POST /api/auth/register` - Registrace uživatele (spouští odeslání verifikačního e-mailu)
+* `POST /api/auth/verify` - Ověření registračního kódu
 * `POST /api/auth/login` - Přihlášení (vrací JWT)
 * `GET /api/products` - Výpis katalogu
 * `POST /api/order` - Vytvoření objednávky
@@ -76,7 +78,7 @@ Backend vystavuje REST API pro SPA frontend.
 
 ---
 
-##  Tech Stack
+## Tech Stack
 
 * **Core:** Java 17, Spring Boot 3
 * **Data:** Spring Data JPA, PostgreSQL
@@ -84,12 +86,12 @@ Backend vystavuje REST API pro SPA frontend.
 * **Integrace & Utility:**
     * `JavaMailSender` (SMTP notifikace)
     * `ZXing` (Generování QR kódů)
-    * `RestTemplate` (Komunikace s PPL API)
+    * `WebClient` (Reaktivní komunikace s PPL API)
 * **Build & Deploy:** Maven, Docker, Railway (Backend + DB)
 
 ---
 
-##  Architektura
+## Architektura
 
 Backend je navržen jako REST API obsluhující SPA (Single Page Application).
 
@@ -99,7 +101,7 @@ sequenceDiagram
     participant Frontend
     participant Backend
     participant DB
-    participant SMTP as SMTP (Seznam)
+    participant SMTP as SMTP
     
     Customer->>Frontend: Kliknutí "Objednat"
     Frontend->>Frontend: Adulto Widget (Ověření věku)
