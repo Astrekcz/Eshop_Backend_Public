@@ -44,7 +44,7 @@ Aplikace obsahuje robustní administrátorskou sekci (Role `ADMIN`):
 
 ---
 
-## 🔌 API Endpointy (Výběr)
+##  API Endpointy (Výběr)
 Backend vystavuje REST API pro SPA frontend.
 
 ### Public (Veřejné)
@@ -65,7 +65,7 @@ Backend vystavuje REST API pro SPA frontend.
 
 ---
 
-## 🛠 Tech Stack
+##  Tech Stack
 
 * **Core:** Java 17, Spring Boot 3
 * **Data:** Spring Data JPA, PostgreSQL
@@ -78,7 +78,7 @@ Backend vystavuje REST API pro SPA frontend.
 
 ---
 
-## 🏗 Architektura
+##  Architektura
 
 Backend je navržen jako REST API obsluhující SPA (Single Page Application).
 
