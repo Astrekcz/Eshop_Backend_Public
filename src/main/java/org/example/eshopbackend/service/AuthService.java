@@ -62,29 +62,28 @@ public class AuthService {
     }
 
     public AuthenticationResponseDTO login(AuthenticationRequestDTO request) {
-        // 1. Spring Security Authentication Manager provede ověření
-        // Pokud heslo nesedí nebo je účet zamčený, vyhodí to výjimku automaticky
+        // 1. Normalizace emailu (TOHLE TAM CHYBĚLO)
+        String email = request.getEmail().trim().toLowerCase(Locale.ROOT);
+
+        // 2. AuthenticationManager - použijeme už normalizovaný email
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
+                        email, // Zde použij proměnnou 'email', ne 'request.getEmail()'
                         request.getPassword()
                 )
         );
 
-        // 2. Načteme uživatele z DB (víme, že existuje a heslo sedí)
-        User user = userRepository.findByEmail(request.getEmail())
+        // 3. Načtení z DB - použijeme normalizovaný email
+        User user = userRepository.findByEmail(email) // Zde použij proměnnou 'email'
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        // 3. Převedeme na CustomUserDetails (potřebné pro generování tokenu)
-        CustomUserDetails userDetails = new CustomUserDetails(user);
+        // ... zbytek kódu (CustomUserDetails, generování tokenu) ...
 
-        // 4. Přidáme extra claimy (userId, role) do tokenu
+        CustomUserDetails userDetails = new CustomUserDetails(user);
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("userId", user.getUserID());
-        // Uložíme roli tak, jak ji očekává frontend (např. ROLE_ADMIN)
         extraClaims.put("role", "ROLE_" + user.getRole().name());
 
-        // 5. Vygenerujeme token
         String jwtToken = jwtService.generateToken(extraClaims, userDetails);
 
         return new AuthenticationResponseDTO(jwtToken);

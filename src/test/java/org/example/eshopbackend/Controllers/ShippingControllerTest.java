@@ -1,23 +1,20 @@
-// src/test/java/org/example/zeniqbackend/Controllers/ShippingControllerTest.java
 package org.example.eshopbackend.Controllers;
-
 import org.example.eshopbackend.controllers.ShippingController;
 import org.example.eshopbackend.dto.shipment.ShipmentDTO;
+import org.example.eshopbackend.security.JwtAuthenticationFilter;
+import org.example.eshopbackend.security.SecurityConfig;
 import org.example.eshopbackend.shipping.ppl.ShipmentService;
-import org.example.eshopbackend.security.JwtRequestFilter;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean; // Spring Boot 3.4+
 import org.springframework.test.web.servlet.MockMvc;
-
-import jakarta.annotation.Resource;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -26,21 +23,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(
         controllers = ShippingController.class,
         excludeFilters = {
-                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtRequestFilter.class),
-                // pokud máš vlastní SecurityConfig, můžeš taky vyloučit:
-                // @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class)
+                // 1. Vyloučíme novou Security konfiguraci (aby test nechtěl JwtService, UserDetails atd.)
+                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class),
+                // 2. Vyloučíme nový filtr
+                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthenticationFilter.class)
         }
 )
+// 3. addFilters = false vypne Security úplně (pro unit test controlleru ideální)
 @AutoConfigureMockMvc(addFilters = false)
 class ShippingControllerTest {
 
-    @Resource private MockMvc mvc;
+    @Autowired
+    private MockMvc mvc;
 
     @MockitoBean
     private ShipmentService shipmentService;
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+        // @WithMockUser zde není potřeba, protože addFilters=false vypne ověřování rolí
+        // Pokud bys chtěl testovat i Security, musel bys zapnout filtry a namockovat JwtService.
     void getShipment_returnsDto() throws Exception {
         var dto = ShipmentDTO.builder()
                 .shipmentId(10L)
@@ -51,7 +52,8 @@ class ShippingControllerTest {
 
         Mockito.when(shipmentService.refreshTracking(10L)).thenReturn(dto);
 
-        mvc.perform(get("/api/shipping/shipments/10").accept(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/shipping/shipments/10")
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.shipmentId").value(10))
                 .andExpect(jsonPath("$.trackingNumber").value("TEST123"))
