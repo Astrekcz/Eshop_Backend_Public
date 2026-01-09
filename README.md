@@ -14,12 +14,23 @@ Projekt demonstruje kompletní životní cyklus objednávky: od registrace, pře
 
 ---
 
-##  Klíčové Backend Funkcionality
+##  Demo Účty & Přístup
 
-### 1. Řízení objednávek a State Management
-Backend řídí stavy objednávek a zajišťuje datovou konzistenci.
+Aplikaci si můžete vyzkoušet zaregistrováním vlastního uživatelského účtu na frontendu.
+
+**Administrátorský přístup:**
+Z bezpečnostních důvodů (ochrana databáze před spamem a scripty) **nejsou** přihlašovací údaje pro roli `ADMIN` veřejně dostupné.
+> **Jste IT Recruiter nebo Tech Lead?**
+> Pokud si chcete vyzkoušet funkcionalitu admin panelu (správa produktů, generování štítků, dashboard), kontaktujte mě prosím. Rád vám obratem poskytnu dočasné admin credentials.
+
+---
+
+## Klíčové Backend Funkcionality
+
+### 1. Řízení objednávek a Notifikace
+Backend řídí stavy objednávek a zajišťuje komunikaci se zákazníkem.
 * **Workflow:** `NEW` -> `PAID` -> `SHIPPED` -> `DELIVERED` / `CANCELLED`.
-* **Event-Driven Notifications:** Změna stavu objednávky automaticky spouští odeslání transakčního e-mailu zákazníkovi (potvrzení přijetí, potvrzení platby, odeslání zásilky).
+* **Transakční E-maily:** Systém automaticky odesílá e-mailové potvrzení při vytvoření objednávky a následně při změnách stavu (např. potvrzení platby, expedice).
 
 ### 2. Admin Panel & Logistika
 Aplikace obsahuje robustní administrátorskou sekci (Role `ADMIN`):
@@ -32,10 +43,11 @@ Aplikace obsahuje robustní administrátorskou sekci (Role `ADMIN`):
 * **Smart Platby:** Backend dynamicky generuje validní SEPA QR kód (SPAYD standard) pro okamžitou platbu převodem ihned po vytvoření objednávky.
 
 ### 4. Bezpečnost a Uživatelé
-* **Verifikace:** Dvoufázová registrace (ověření e-mailu kódem) a kontrola plnoletosti (Adult check) při nákupu.
-* **Security:** Stateless autentizace pomocí JWT (JSON Web Tokens).
-* **Role Management:** Striktní oddělení práv v Security Filter Chain:
-    * `USER`: Nákup, historie vlastních objednávek, profil.
+* **Autentizace:** Stateless autentizace a autorizace pomocí JWT (JSON Web Tokens).
+* **Validace:** Kontrola plnoletosti (Adult check) při nákupu specifického zboží.
+* **Správa profilu:** Uživatel má možnost spravovat své osobní údaje a měnit přístupové heslo.
+* **Role Management:** Striktní oddělení endpointů v Security Filter Chain:
+    * `USER`: Nákup, historie vlastních objednávek, správa profilu.
     * `ADMIN`: Dashboard, editace produktů, správa všech objednávek, logistika.
 
 ### 5. Správa obsahu
@@ -48,15 +60,14 @@ Aplikace obsahuje robustní administrátorskou sekci (Role `ADMIN`):
 Backend vystavuje REST API pro SPA frontend.
 
 ### Public (Veřejné)
-* `POST /api/auth/register` - Registrace s odesláním verifikačního e-mailu
+* `POST /api/auth/register` - Registrace uživatele
 * `POST /api/auth/login` - Přihlášení (vrací JWT)
 * `GET /api/products` - Výpis katalogu
-* `POST /api/order` - Vytvoření objednávky (Guest checkout)
-* `POST /api/verification/**` - Ověření emailu
+* `POST /api/order` - Vytvoření objednávky
 
 ### Secured (Uživatel)
 * `GET /orders/{id}` - Detail objednávky a její stav
-* `PUT /api/users/profile` - Změna údajů (Heslo, Email, Telefon)
+* `PUT /api/users/profile` - Změna profilových údajů a hesla
 
 ### Secured (Admin)
 * `PUT /api/admin/orders/{id}/status` - Změna stavu objednávky + trigger e-mailu
