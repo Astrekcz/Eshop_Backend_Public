@@ -1,6 +1,5 @@
 package org.example.eshopbackend.controllers;
 
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,10 +7,11 @@ import org.example.eshopbackend.dto.AuthenticationRequestDTO;
 import org.example.eshopbackend.dto.AuthenticationResponseDTO;
 import org.example.eshopbackend.dto.CreateUserRequestDTO;
 import org.example.eshopbackend.dto.UpdateUserRequestDTO;
+import org.example.eshopbackend.security.CustomUserDetails;
 import org.example.eshopbackend.service.AuthService;
-import org.example.eshopbackend.util.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,49 +21,55 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
-    private final JwtUtil jwtUtil;
-
+    // JwtUtil/JwtService zde už není potřeba, controller ho nepoužívá
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody CreateUserRequestDTO registerRequest) {
         try {
             authService.register(registerRequest);
             return new ResponseEntity<>("User registered successfully", HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            // Specifický catch pro validace (např. email existuje)
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
-
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthenticationRequestDTO authenticationRequest) {
         try {
             AuthenticationResponseDTO response = authService.login(authenticationRequest);
-            log.info("user logged in");
+            log.info("User logged in: {}", authenticationRequest.getEmail());
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            log.error(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+        } catch (Exception e) {
+            // AuthenticationManager vyhodí výjimku, pokud jsou údaje špatně
+            log.warn("Login failed for {}: {}", authenticationRequest.getEmail(), e.getMessage());
+            return new ResponseEntity<>("Invalid credentials", HttpStatus.UNAUTHORIZED);
         }
     }
 
     @PutMapping("/me")
     public ResponseEntity<String> updateMe(
-            @RequestHeader(value = "Authorization", required = false) String authorization,
+            // Magie Spring Security: Injektne aktuálně přihlášeného uživatele (z tokenu)
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody UpdateUserRequestDTO dto) {
+
         try {
-            if (authorization == null || !authorization.startsWith("Bearer "))
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing token");
+            // 1. Bezpečnostní pojistka (i když SecurityConfig by to sem bez tokenu nepustil)
+            if (userDetails == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+            }
 
-            String token = authorization.substring(7);
-            Long userId = jwtUtil.extractUserId(token);
+            // 2. Získání ID přímo z načteného kontextu
+            Long userId = userDetails.getUserId();
 
+            // 3. Update
             authService.updateUser(dto, userId);
+
             return ResponseEntity.ok("User updated successfully");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-
-
 }
