@@ -95,14 +95,16 @@ Backend je navržen jako REST API obsluhující SPA (Single Page Application).
 
 ```mermaid
 sequenceDiagram
+    participant Customer as Zákazník
     participant Frontend
     participant Backend
     participant DB
-    participant EmailService
+    participant SMTP as SMTP (Seznam)
     
-    Frontend->>Backend: POST /api/orders (Vytvořit objednávku)
-    Backend->>Backend: Validace věku & skladu
+    Customer->>Frontend: Kliknutí "Objednat"
+    Frontend->>Frontend: Adulto Widget (Ověření věku)
+    Frontend->>Backend: POST /api/orders
     Backend->>DB: Uložit objednávku (Status: NEW)
-    Backend->>EmailService: Odeslat potvrzení (Async)
-    EmailService-->>Frontend: (Email zákazníkovi)
+    Backend->>SMTP: Odeslat potvrzení
+    SMTP-->>Customer: Doručení emailu
     Backend->>Frontend: 200 OK + QR Kód k platbě
