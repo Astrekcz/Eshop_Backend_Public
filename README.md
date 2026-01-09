@@ -21,7 +21,7 @@ Aplikaci si můžete vyzkoušet zaregistrováním vlastního uživatelského ú�
 **Administrátorský přístup:**
 Z bezpečnostních důvodů (ochrana databáze před spamem a scripty) **nejsou** přihlašovací údaje pro roli `ADMIN` veřejně dostupné.
 > **Jste IT Recruiter nebo Tech Lead?**
-> Pokud si chcete vyzkoušet funkcionalitu admin panelu (správa produktů, generování štítků, dashboard), kontaktujte mě prosím. Rád vám obratem poskytnu dočasné admin credentials.
+> Pokud si chcete vyzkoušet funkcionalitu admin panelu (správa produktů, objednavek, dashboard), kontaktujte mě prosím. Rád vám obratem poskytnu dočasné admin credentials.
 
 ---
 
