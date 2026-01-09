@@ -40,7 +40,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/catalog/**").permitAll()
                         .requestMatchers("/images/**", "/css/**", "/js/**", "/error").permitAll()
 
-                        // Admin endpointy (neuvádíme prefix ROLE_, Spring ho doplní sám)
+
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         // Ostatní
@@ -57,7 +57,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://tvoje-domena.com")); // Uprav podle frontendu
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://eshop-frontend-kappa.vercel.app")); // Uprav podle frontendu
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
