@@ -32,12 +32,16 @@ Backend řídí stavy objednávek a zajišťuje komunikaci se zákazníkem.
 * **Workflow:** `NEW` -> `PAID` -> `SHIPPED` -> `DELIVERED` / `CANCELLED`.
 * **Transakční E-maily:** Systém automaticky odesílá e-mailové potvrzení při vytvoření objednávky a následně při změnách stavu (např. potvrzení platby, expedice).
 
-### 2. Admin Panel & Logistika
-Aplikace obsahuje robustní administrátorskou sekci (Role `ADMIN`):
-* **Správa objednávek:** Kompletní přehled objednávek, detailní náhledy, manuální změna stavů a řešení storen.
-* **Integrace PPL (Logistika):** Backend komunikuje s API dopravce.
-    * **Generování štítků:** Admin může přímo z detailu objednávky vygenerovat a **stáhnout PDF štítek** pro balík.
-    * *Poznámka:* V této demo verzi je volání na produkční PPL servery vypnuté (chybějící privátní klíče), logika integrace je však v kódu plně implementována.
+### 2. Admin Panel & Správa obsahu
+Robustní administrátorské rozhraní (přístupné pouze pro roli `ADMIN`) umožňuje plnou kontrolu nad inventářem a logistikou:
+
+* **Správa produktů a kategorií (CRUD):** * Kompletní rozhraní pro vytváření, úpravu a mazání produktů.
+    * Dynamická správa kategorií pro organizaci katalogu.
+* **Multimédia & Image Upload:** * Backend podporuje nahrávání obrázků k produktům (Multipart/Form-Data).
+    * Logika pro validaci velikosti, formátu a následné mapování souborů na produktovou galerii.
+* **Správa objednávek:** * Detailní přehled všech transakcí, manuální změna stavů a správa storen.
+* **Integrace PPL (Logistika):** * Backend komunikuje s API dopravce. Admin může přímo z detailu objednávky vygenerovat a **stáhnout PDF štítek** pro balík.
+    * *Poznámka:* V demo verzi je volání na produkční API vypnuté, logika je však v kódu plně implementována.
 
 ### 3. Platby
 * **Smart Platby:** Backend dynamicky generuje validní QR kód (český standard SPAYD) pro okamžitou platbu v CZK ihned po vytvoření objednávky.
