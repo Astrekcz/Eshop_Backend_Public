@@ -95,6 +95,3 @@ Backend vystavuje REST API pro SPA frontend.
 
 ---
 
-    Backend->>SMTP: Odeslat potvrzení
-    SMTP-->>Customer: Doručení emailu
-    Backend->>Frontend: 200 OK + QR Kód k platbě
