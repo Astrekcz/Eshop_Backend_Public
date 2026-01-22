@@ -95,22 +95,6 @@ Backend vystavuje REST API pro SPA frontend.
 
 ---
 
-## Architektura
-
-Backend je navržen jako REST API obsluhující SPA (Single Page Application).
-
-```mermaid
-sequenceDiagram
-    participant Customer as Zákazník
-    participant Frontend
-    participant Backend
-    participant DB
-    participant SMTP as SMTP
-    
-    Customer->>Frontend: Kliknutí "Objednat"
-    Frontend->>Frontend: Adulto Widget (Ověření věku)
-    Frontend->>Backend: POST /api/orders
-    Backend->>DB: Uložit objednávku (Status: NEW)
     Backend->>SMTP: Odeslat potvrzení
     SMTP-->>Customer: Doručení emailu
     Backend->>Frontend: 200 OK + QR Kód k platbě
