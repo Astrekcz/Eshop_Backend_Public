@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      - POSTGRES_DB=eshop_db
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5433:5432"
+
+  backend:
+    build: .
+    ports:
+      - "8080:8080"
+    env_file:
+      - /run/media/astrek/f1c967be-ec4e-4fc4-bfe2-a49c36ac3e4f1/springENV/eshop.env
+    environment:
+      - PGHOST=db
+      - PGPORT=5432
+      - PGDATABASE=eshop_db
+      - PGUSER=user
+      - PGPASSWORD=password
+      - PORT=8080
+    depends_on:
+      - db

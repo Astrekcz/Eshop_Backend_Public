@@ -1,9 +1,11 @@
 package org.example.eshopbackend.service.email;
 
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.eshopbackend.entity.OrderEntity;
+import org.example.eshopbackend.exception.MissingCredentialsException;
 import org.example.eshopbackend.util.QrGenerator;
 import org.example.eshopbackend.util.Spayd;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,8 +54,13 @@ public class EmailService {
             helper.addInline(qrCid, (InputStreamSource) () -> new java.io.ByteArrayInputStream(qrPng), "image/png");
             attachTermsIfPresent(helper);
             mailSender.send(message);
-        } catch (Exception e) { throw new RuntimeException("Nepodařilo se poslat potvrzení objednávky", e); }
+        } catch (jakarta.mail.internet.AddressException | IllegalArgumentException e) {
+            throw new MissingCredentialsException("Chybí vám nastavení emailové schránky pro eshop"); }
+        catch (MessagingException e){
+            throw new RuntimeException("Chyba při komunikaci s poštovním serverem", e);
+        }
     }
+
 
     public void sendOrderShipped(OrderEntity order) {
         try {
@@ -112,7 +119,11 @@ public class EmailService {
 
             mailSender.send(message);
             log.info("Ověřovací email odeslán na: {}", email);
-        } catch (Exception e) {
+        }catch (jakarta.mail.internet.AddressException | IllegalArgumentException e)
+        {
+            throw new MissingCredentialsException("Chybí vám nastavení emailové schránky pro eshop");
+        }
+        catch (Exception e) {
             log.error("Chyba při odesílání ověřovacího kódu na {}", email, e);
             throw new RuntimeException("Nepodařilo se odeslat ověřovací e-mail", e);
         }

@@ -33,22 +33,20 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                // Nastavení URL pravidel
                 .authorizeHttpRequests(auth -> auth
-                        // Veřejné endpointy
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/catalog/**").permitAll()
                         .requestMatchers("/images/**", "/css/**", "/js/**", "/error").permitAll()
-
-
+                        .requestMatchers("/api/verification/**").permitAll()
+                        .requestMatchers("/api/order/**").permitAll()
+                        .requestMatchers("api/payments/**").permitAll()
+                        .requestMatchers("api/shipping/**").hasRole("ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-
-                        // Ostatní
                         .anyRequest().authenticated()
                 )
 
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider) // Náš custom provider z ApplicationConfig
+                .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -57,7 +55,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://eshop-frontend-kappa.vercel.app")); // Uprav podle frontendu
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://eshop-frontend-kappa.vercel.app"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
