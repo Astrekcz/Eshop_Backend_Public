@@ -9,8 +9,6 @@ Vítejte v repozitáři backendové části mého fullstack e-shopu. Jedná se o
 
 Projekt demonstruje kompletní životní cyklus objednávky: od registrace a verifikace e-mailu, přes validaci a generování platebních QR kódů, až po logistiku a správu v administraci.
 
-**Live Aplikace (Frontend):** [https://eshop-frontend-kappa.vercel.app/](https://eshop-frontend-kappa.vercel.app/)
-*(Aplikace je plně interaktivní a komunikuje s tímto backendem)*
 
 ---
 
