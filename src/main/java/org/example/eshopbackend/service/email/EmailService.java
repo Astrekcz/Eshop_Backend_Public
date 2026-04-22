@@ -1,5 +1,6 @@
 package org.example.eshopbackend.service.email;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -27,11 +28,35 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final EmailHtmlBuilder htmlBuilder;
 
-    @Value("${spring.mail.username}") private String from;
+    @Value("${spring.mail.username}") private String senderEmail;
     @Value("${payments.bank.iban}") private String iban;
     @Value("${payments.bank.bic:}") private String bic;
     @Value("${mail.terms.classpath:static/Obchodni_podminky.pdf}") private String termsClasspath;
     @Value("${ppl.sender.name:}") private String sellerName;
+
+    @PostConstruct
+    public void validateConfig() {
+        // 1. Kontrola, jestli je tam aspoň nějaký text
+        if (!StringUtils.hasText(senderEmail)) {
+            log.error("NEMÁTE NASTAVENOU EMAILOVOU SCHRÁNKU (proměnná je prázdná)");
+            throw new IllegalArgumentException("Chybí konfigurace odesílatele");
+        }
+
+        // 2. Kontrola, jestli tam nezůstal nevyhodnocený placeholder ${M_USER}
+        // Tohle se stane, když v docker-compose nebo env chybí M_USER
+        if (senderEmail.contains("${")) {
+            log.error("CHYBA KONFIGURACE: Environment proměnná pro email nebyla nalezena. Aktuální hodnota: {}", senderEmail);
+            throw new IllegalArgumentException("Nebyla nalezena environment proměnná pro odesílatele");
+        }
+
+        // 3. Základní validace formátu adresy (aby to neprošlo s blbostí)
+        if (!senderEmail.contains("@")) {
+            log.error("CHYBA KONFIGURACE: Hodnota '{}' není validní emailová adresa!", senderEmail);
+            throw new IllegalArgumentException("Neplatný formát emailu odesílatele");
+        }
+
+        log.info("Email service inicializován s adresou: {}", senderEmail);
+    }
 
     private String paymentMessage(OrderEntity o) {
         return "Objednávka " + o.getOrderNumber() + " – " + (StringUtils.hasText(sellerName) ? sellerName : "Prodejce");
@@ -48,15 +73,13 @@ public class EmailService {
 
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
-            helper.setFrom(from); helper.setTo(order.getCustomerEmail()); helper.setBcc(from);
+            helper.setFrom(senderEmail); helper.setTo(order.getCustomerEmail()); helper.setBcc(senderEmail);
             helper.setSubject("Potvrzení objednávky č. " + order.getOrderNumber());
             helper.setText(html, true);
             helper.addInline(qrCid, (InputStreamSource) () -> new java.io.ByteArrayInputStream(qrPng), "image/png");
             attachTermsIfPresent(helper);
             mailSender.send(message);
-        } catch (jakarta.mail.internet.AddressException | IllegalArgumentException e) {
-            throw new MissingCredentialsException("Chybí vám nastavení emailové schránky pro eshop"); }
-        catch (MessagingException e){
+        } catch (MessagingException e){
             throw new RuntimeException("Chyba při komunikaci s poštovním serverem", e);
         }
     }
@@ -66,7 +89,7 @@ public class EmailService {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, false, StandardCharsets.UTF_8.name());
-            helper.setFrom(from); helper.setTo(order.getCustomerEmail()); helper.setBcc(from);
+            helper.setFrom(senderEmail); helper.setTo(order.getCustomerEmail()); helper.setBcc(senderEmail);
             helper.setSubject("Objednávka " + order.getOrderNumber() + " byla předána dopravci (PPL)");
             helper.setText(htmlBuilder.buildShippedHtml(order), true);
             mailSender.send(message);
@@ -77,7 +100,7 @@ public class EmailService {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
-            helper.setFrom(from); helper.setTo(order.getCustomerEmail()); helper.setBcc(from);
+            helper.setFrom(senderEmail); helper.setTo(order.getCustomerEmail()); helper.setBcc(senderEmail);
             helper.setSubject("Objednávka č. " + order.getOrderNumber() + " byla předána dopravci PPL");
             helper.setText(htmlBuilder.buildHandoverHtml(order, trackingNumber, trackingUrl), true);
             mailSender.send(message);
@@ -88,7 +111,7 @@ public class EmailService {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
-            helper.setFrom(from); helper.setTo(order.getCustomerEmail()); helper.setBcc(from);
+            helper.setFrom(senderEmail); helper.setTo(order.getCustomerEmail()); helper.setBcc(senderEmail);
             helper.setSubject("Potvrzení platby - objednávka č. " + order.getOrderNumber());
             helper.setText(htmlBuilder.buildPaymentReceivedHtml(order), true);
             mailSender.send(message);
@@ -102,14 +125,15 @@ public class EmailService {
         } catch (Exception ex) { log.warn("Failed to attach terms PDF: {}", ex.getMessage()); }
     }
 
-    // === NOVÁ METODA ===
     public void sendVerificationCode(String email, String code) {
+
+
         try {
             MimeMessage message = mailSender.createMimeMessage();
             // false = neposíláme multipart přílohy, jen HTML
             MimeMessageHelper helper = new MimeMessageHelper(message, false, StandardCharsets.UTF_8.name());
 
-            helper.setFrom(from);
+            helper.setFrom(senderEmail);
             helper.setTo(email);
             helper.setSubject("Váš ověřovací kód: " + code);
 
