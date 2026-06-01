@@ -1,28 +1,32 @@
-// src/main/java/org/example/zeniqbackend/entity/Image.java
 package org.example.eshopbackend.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-import org.hibernate.validator.constraints.URL;
 
-import java.time.OffsetDateTime;
-
+// 1. Dědíme z BaseEntity - tím získáme id, createdAt a updatedAt automaticky
 @Entity
 @Table(name = "images")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class Image {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Image extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "image_id", updatable = false, nullable = false)
-    private Long imageId;
+    // 2. imageId a createdAt SMAZÁNY - jsou už v BaseEntity (id, createdAt)
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "product_id", nullable = false)
+    // 3. Stará vazba nastavena jako volitelná a NEZAPISOVATELNÁ (jen pro čtení starých dat)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", insertable = false, updatable = false)
+    @Deprecated
     private Product product;
 
-    //@URL(message = "Neplatná URL adresa obrázku")
+    // 4. Nová vazba na Item - tohle je teď hlavní majitel vztahu
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "item_id", nullable = false)
+    private Item item;
+
     @NotBlank
     @Column(name = "url", nullable = false, length = 512)
     private String url;
@@ -35,13 +39,7 @@ public class Image {
 
     /** Pořadí zobrazení v galerii (0 = první) */
     @Column(name = "sort_order", nullable = false)
-    private int sortOrder;
+    private int sortOrder = 0;
 
-    @Column(name = "created_at", nullable = false)
-    private OffsetDateTime createdAt;
-
-    @PrePersist
-    void prePersist() {
-        if (createdAt == null) createdAt = OffsetDateTime.now();
-    }
+    // 5. prePersist SMAZÁN - BaseEntity už má vlastní @PrePersist logiku
 }

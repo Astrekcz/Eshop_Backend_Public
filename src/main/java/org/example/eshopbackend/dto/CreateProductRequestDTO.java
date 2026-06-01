@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Deprecated
 public class CreateProductRequestDTO {
 
     @NotBlank

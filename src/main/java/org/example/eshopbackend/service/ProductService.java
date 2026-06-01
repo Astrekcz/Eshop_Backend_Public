@@ -23,6 +23,7 @@ import java.util.Locale;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Deprecated
 public class ProductService {
 
     private final ProductRepository productRepository;

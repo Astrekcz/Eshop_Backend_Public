@@ -2,19 +2,15 @@ package org.example.eshopbackend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@Table(name = "categories")
-public class Category {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long categoryId;
+@SuperBuilder
+public class Category extends BaseEntity {
 
     @Column(nullable = false, length = 100)
     private String categoryName;

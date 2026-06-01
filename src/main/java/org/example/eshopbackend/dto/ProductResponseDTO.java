@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 
 // src/main/java/org/example/zeniqbackend/dto/ProductResponseDTO.java
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Deprecated
 public class ProductResponseDTO {
 
     private Long productId;

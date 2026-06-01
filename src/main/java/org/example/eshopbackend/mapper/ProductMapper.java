@@ -10,6 +10,7 @@ import org.mapstruct.*;
 
 // ProductMapper.java
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Deprecated
 public interface ProductMapper {
 
     @Mapping(target = "productId", ignore = true)
@@ -24,7 +25,7 @@ public interface ProductMapper {
     @Mapping(target = "weightGrams", source = "weightGrams") // ⬅ POVINNĚ
     void updateEntity(@MappingTarget Product target, UpdateProductRequestDTO dto);
 
-    @Mapping(target = "categoryId", source = "category.categoryId")
+    @Mapping(target = "categoryId", source = "category.id")
     @Mapping(target = "categoryName", source = "category.categoryName")
     ProductResponseDTO toDto(Product product);
 

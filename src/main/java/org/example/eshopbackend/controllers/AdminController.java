@@ -132,14 +132,14 @@ public class AdminController {
     }
 
     @PostMapping("/products/{productId}/images")
-    public ImageResponseDTO createProductImage(@PathVariable Long productId,
+    public ImageResponseDTO createProductImage(@PathVariable Long Id,
                                                @Valid @RequestBody CreateImageRequestDTO dto) {
-        return imageService.addToProduct(productId, dto);
+        return imageService.addToItem(Id, dto);
     }
 
-    @GetMapping("/products/{productId}/images")
-    public List<ImageResponseDTO> listProductImages(@PathVariable Long productId) {
-        return imageService.listByProduct(productId);
+    @GetMapping("/products/{Id}/images")
+    public List<ImageResponseDTO> listProductImages(@PathVariable Long Id) {
+        return imageService.listByItem(Id);
     }
 
     @PutMapping("/images/{imageId}")

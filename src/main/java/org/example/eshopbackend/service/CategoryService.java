@@ -44,14 +44,14 @@ public class CategoryService {
 
         try {
             Category saved = categoryRepository.save(entity);
-            log.info("Created category id={} slug={}", saved.getCategoryId(), saved.getSlug());
+            log.info("Created category id={} slug={}", saved.getId(), saved.getSlug());
             return saved;
         } catch (DataIntegrityViolationException ex) {
             // souběh – přidáme další sufix a zkusíme znovu
             slug = ensureUniqueSlug(base);
             entity.setSlug(slug);
             Category saved = categoryRepository.save(entity);
-            log.info("Created category (retry) id={} slug={}", saved.getCategoryId(), saved.getSlug());
+            log.info("Created category (retry) id={} slug={}", saved.getId(), saved.getSlug());
             return saved;
         }
     }

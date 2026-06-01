@@ -106,6 +106,6 @@ public class AdminImageUploadController {
                 .sortOrder(sortOrder)
                 .build();
 
-        return imageService.addToProduct(productId, dto);
+        return imageService.addToItem(productId, dto);
     }
 }

@@ -12,6 +12,7 @@ import java.util.List;
 @Entity
 @Table(name = "products")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Deprecated
 public class Product {
 
     @Id

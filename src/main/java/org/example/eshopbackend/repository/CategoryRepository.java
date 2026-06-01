@@ -9,7 +9,6 @@ import java.util.List;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
-    // findById(...) už dědíš z JpaRepository
     boolean existsBySlug(String slug);
     default List<Category> findAllOrdered() {
         return findAll(Sort.by(Sort.Direction.ASC, "categoryName"));

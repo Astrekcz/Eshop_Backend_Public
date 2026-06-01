@@ -8,6 +8,7 @@ import org.hibernate.validator.constraints.URL;
 import java.math.BigDecimal;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Deprecated
 public class UpdateProductRequestDTO {
 
     @NotBlank @Size(max = 160)

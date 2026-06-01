@@ -76,7 +76,7 @@ public class CatalogController {
     // CatalogController
     @GetMapping("/products/{id}/images")
     public List<ImageResponseDTO> imagesPublic(@PathVariable Long id) {
-        return imageService.listByProduct(id); // vrať jen public fotky
+        return imageService.listByItem(id); // vrať jen public fotky
     }
 
 }

@@ -121,6 +121,13 @@
             <artifactId>libphonenumber</artifactId>
             <version>8.13.43</version>
         </dependency>
+
+        <dependency>
+            <groupId>io.hypersistence</groupId>
+            <artifactId>hypersistence-utils-hibernate-63</artifactId>
+            <version>3.15.2</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -1,9 +1,9 @@
-// src/main/java/org/example/zeniqbackend/dto/image/ImageResponseDTO.java
 package org.example.eshopbackend.dto.image;
 
 import lombok.*;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
+
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class ImageResponseDTO {
@@ -13,5 +13,5 @@ public class ImageResponseDTO {
     private String altText;
     private boolean primary;
     private int sortOrder;
-    private OffsetDateTime createdAt;
+    private LocalDateTime createdAt;
 }
