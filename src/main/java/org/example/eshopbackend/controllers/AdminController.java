@@ -12,18 +12,13 @@ import org.example.eshopbackend.dto.shipment.OrderResponseDTO;
 import org.example.eshopbackend.dto.shipment.UpdateOrderDTO;
 
 import org.example.eshopbackend.entity.Category;
+import org.example.eshopbackend.entity.Item;
 import org.example.eshopbackend.entity.Product;
 import org.example.eshopbackend.entity.OrderEntity;
 
-import org.example.eshopbackend.mapper.CategoryMapper;
-import org.example.eshopbackend.mapper.ImageMapper;
-import org.example.eshopbackend.mapper.ProductMapper;
-import org.example.eshopbackend.mapper.OrderMapper;
+import org.example.eshopbackend.mapper.*;
 
-import org.example.eshopbackend.service.CategoryService;
-import org.example.eshopbackend.service.ImageService;
-import org.example.eshopbackend.service.ProductService;
-import org.example.eshopbackend.service.OrderService;
+import org.example.eshopbackend.service.*;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -49,6 +44,9 @@ public class AdminController {
 
     private final ImageService imageService;
     private final ImageMapper imageMapper;
+
+    private final ItemMapper itemMapper;
+    private final ItemService itemService;
 
     // --- CATEGORY ---
 
@@ -78,23 +76,27 @@ public class AdminController {
     // --- PRODUCTS ---
 
     @PostMapping("/products")
+    @Deprecated
     public ProductResponseDTO createProduct(@Valid @RequestBody CreateProductRequestDTO dto) {
         Product saved = productService.addProduct(dto);
         return productMapper.toDto(saved);
     }
 
     @GetMapping("/products")
+    @Deprecated
     public Page<ProductResponseDTO> listProducts(Pageable pageable) {
         Page<Product> page = productService.list(pageable);
         return page.map(productMapper::toDto);
     }
 
     @GetMapping("/products/{id}")
+    @Deprecated
     public ProductResponseDTO getProduct(@PathVariable Long id) {
         return productMapper.toDto(productService.getById(id));
     }
 
     @PutMapping("/products/{id}")
+    @Deprecated
     public ProductResponseDTO updateProduct(@PathVariable Long id,
                                             @Valid @RequestBody UpdateProductRequestDTO dto) {
         Product updated = productService.update(id, dto);
@@ -102,6 +104,7 @@ public class AdminController {
     }
 
     @DeleteMapping("/products/{id}")
+    @Deprecated
     public void deleteProduct(@PathVariable Long id) {
         productService.delete(id);
     }
@@ -156,5 +159,38 @@ public class AdminController {
     @PostMapping("/images/{imageId}/set-primary")
     public ImageResponseDTO setPrimaryImage(@PathVariable Long imageId) {
         return imageService.setPrimary(imageId);
+    }
+// --- ITEMS
+
+    @PostMapping("/items")
+    public ItemResponseDTO createItem(@Valid @RequestBody CreateItemRequestDTO dto) {
+        Item saved = itemService.create(dto);
+        return itemMapper.toDto(saved);
+    }
+
+    @GetMapping("/items")
+    public Page<ItemResponseDTO> listItems(Pageable pageable) {
+        Page<Item> page = itemService.list(pageable);
+        return page.map(itemMapper::toDto);
+    }
+
+    @GetMapping("/items/{id}")
+    @Deprecated
+    public ItemResponseDTO getItem(@PathVariable Long id) {
+        return itemMapper.toDto(itemService.getById(id));
+    }
+
+    @PutMapping("/items/{id}")
+    @Deprecated
+    public ItemResponseDTO updateItem(@PathVariable Long id,
+                                      @Valid @RequestBody UpdateItemRequestDTO dto) {
+        Item updated = itemService.update(id, dto);
+        return itemMapper.toDto(updated);
+    }
+
+    @DeleteMapping("/items/{id}")
+    @Deprecated
+    public void deleteItem(@PathVariable Long id) {
+        itemService.delete(id);
     }
 }

@@ -16,10 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OrderEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long orderId;
+public class OrderEntity extends BaseEntity {
 
     @Column(nullable = false, length = 32, unique = true)
     private String orderNumber;
@@ -89,15 +86,5 @@ public class OrderEntity {
     @Column(length = 64)
     private String trackingNumber;
 
-    private Instant createdAt;
-    private Instant updatedAt;
 
-    @PrePersist
-    void prePersist() {
-        createdAt = Instant.now();
-        updatedAt = createdAt;
-    }
-
-    @PreUpdate
-    void preUpdate() { updatedAt = Instant.now(); }
 }

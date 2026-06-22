@@ -16,10 +16,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 @Table(name = "users")
-public class User {
-    @Id
-    @GeneratedValue
-    private Long userID;
+public class User extends BaseEntity {
 
     private String firstName;
 
@@ -40,11 +37,5 @@ public class User {
     @Builder.Default
     private boolean enabled = true;   // defaultně povolený účet
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    @CreationTimestamp
-    private Instant createdAt;   // vyplní se automaticky při INSERTu
 
-    @Column(name = "updated_at")
-    @UpdateTimestamp
-    private Instant updatedAt;   // vyplní/aktualizuje se při UPDATE
 }

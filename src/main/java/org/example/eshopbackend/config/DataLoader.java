@@ -202,7 +202,7 @@ public class DataLoader implements CommandLineRunner {
         String year = String.valueOf(java.time.Year.now().getValue());
         String prefix = year + "-";
         Optional<OrderEntity> last =
-                orderRepository.findTopByOrderNumberStartingWithOrderByOrderIdDesc(prefix);
+                orderRepository.findTopByOrderNumberStartingWithOrderByIdDesc(prefix);
 
         int nextSeq = 1;
         if (last.isPresent()) {

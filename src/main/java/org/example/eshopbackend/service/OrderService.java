@@ -45,7 +45,7 @@ public class OrderService {
         String year = String.valueOf(java.time.Year.now().getValue()); // např. "2025"
         String prefix = year + "-";
 
-        Optional<OrderEntity> last = orderRepository.findTopByOrderNumberStartingWithOrderByOrderIdDesc(prefix);
+        Optional<OrderEntity> last = orderRepository.findTopByOrderNumberStartingWithOrderByIdDesc(prefix);
 
         int nextSeq = 1;
         if (last.isPresent()) {

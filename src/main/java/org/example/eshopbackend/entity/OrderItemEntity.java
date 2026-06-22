@@ -9,10 +9,8 @@ import java.math.BigDecimal;
         @Index(name="ix_items_order", columnList="order_id")
 })
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class OrderItemEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long oItemId;
+public class OrderItemEntity extends BaseEntity {
+
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name="order_id", nullable=false, foreignKey=@ForeignKey(name="fk_item_order"))

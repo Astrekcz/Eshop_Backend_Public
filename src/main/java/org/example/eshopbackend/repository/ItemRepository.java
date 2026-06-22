@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
-    Optional<Product> findBySlug(String slug);
+    Optional<Item> findBySlug(String slug);
 
     boolean existsBySlug(String slug);
     // Pokud máš v Product pole "category" typu Category:
@@ -30,6 +30,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
          or lower(p.slug) like lower(concat('%', :q, '%'))
          or lower(coalesce(c.categoryName, '')) like lower(concat('%', :q, '%'))
     """)
-    Page<Product> search(@Param("q") String q, Pageable pageable);
+    Page<Item> search(@Param("q") String q, Pageable pageable);
 
 }

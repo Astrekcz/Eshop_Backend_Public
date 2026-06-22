@@ -59,7 +59,7 @@ public class CustomUserDetails implements UserDetails {
         return user.getPhoneNumber();
     }
     public Long getUserId(){
-        return user.getUserID();
+        return user.getId();
     }
 
     public String getFirstName(){
