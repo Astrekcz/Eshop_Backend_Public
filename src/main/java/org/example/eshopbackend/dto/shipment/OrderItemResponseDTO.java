@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 @Getter @Setter
 public class OrderItemResponseDTO {
-    private Long oItemId;
+    private Long Id;
     private String nameOfProduct;
     private String name;
     private int amountOfProducts;

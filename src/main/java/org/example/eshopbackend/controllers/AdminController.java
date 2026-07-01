@@ -56,6 +56,12 @@ public class AdminController {
         return categoryMapper.toDto(saved);
     }
 
+    @PutMapping("/categories/{id}")
+    public CategoryResponseDTO updateCategory(@PathVariable Long id, @Valid @RequestBody UpdateCategoryRequestDTO dto){
+        Category saved = categoryService.update(id, dto);
+        return  categoryMapper.toDto(saved);
+    }
+
     @GetMapping("/categories")
     public List<CategoryResponseDTO> listCategories() {
         return categoryService.listAll().stream()
@@ -175,13 +181,11 @@ public class AdminController {
     }
 
     @GetMapping("/items/{id}")
-    @Deprecated
     public ItemResponseDTO getItem(@PathVariable Long id) {
         return itemMapper.toDto(itemService.getById(id));
     }
 
     @PutMapping("/items/{id}")
-    @Deprecated
     public ItemResponseDTO updateItem(@PathVariable Long id,
                                       @Valid @RequestBody UpdateItemRequestDTO dto) {
         Item updated = itemService.update(id, dto);
@@ -189,7 +193,6 @@ public class AdminController {
     }
 
     @DeleteMapping("/items/{id}")
-    @Deprecated
     public void deleteItem(@PathVariable Long id) {
         itemService.delete(id);
     }

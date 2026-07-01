@@ -95,7 +95,6 @@ public class ItemService {
         // Ostatní pole přes MapStruct
         mapper.updateEntity(entity, dto);
 
-        // Sanity check pro váhu
         if (dto.weightGrams() != null) {
             if (entity.getWeightGrams() == null || entity.getWeightGrams() < 0) {
                 entity.setWeightGrams(0);

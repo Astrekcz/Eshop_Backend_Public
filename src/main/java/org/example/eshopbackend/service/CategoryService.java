@@ -3,7 +3,9 @@ package org.example.eshopbackend.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.eshopbackend.dto.CreateCategoryRequestDTO;
+import org.example.eshopbackend.dto.UpdateCategoryRequestDTO;
 import org.example.eshopbackend.entity.Category;
+import org.example.eshopbackend.mapper.CategoryMapper;
 import org.example.eshopbackend.repository.CategoryRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,6 +23,7 @@ import java.util.Locale;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final CategoryMapper mapper;
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
@@ -73,6 +76,20 @@ public class CategoryService {
     public void delete(Long id) {
         categoryRepository.deleteById(id);
     }
+
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
+    public Category update (Long id, UpdateCategoryRequestDTO dto) {
+        Category entity = categoryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Category not found: " + id ));
+
+        mapper.updateEntity(entity, dto);
+
+        return categoryRepository.save(entity);
+
+    }
+
+
 
     // --- helpers ---
 
