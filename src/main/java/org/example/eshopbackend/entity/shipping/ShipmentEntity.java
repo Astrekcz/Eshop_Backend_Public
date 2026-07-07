@@ -3,6 +3,7 @@ package org.example.eshopbackend.entity.shipping;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.eshopbackend.entity.BaseEntity;
 import org.example.eshopbackend.entity.OrderEntity;
 
 import java.time.Instant;
@@ -15,12 +16,9 @@ import java.util.List;
         @Index(name = "ix_ship_batch", columnList = "ppl_batch_id"),
         @Index(name = "ix_ship_tracking", columnList = "tracking_number")
 })
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class ShipmentEntity {
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+public class ShipmentEntity extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long shipmentId;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false,
@@ -72,28 +70,20 @@ public class ShipmentEntity {
 
     // Parcely pro vícekus (volitelné)
     @OneToMany(mappedBy = "shipment", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
     private List<ShipmentParcelEntity> parcels = new ArrayList<>();
-
-    // Audit
-    @Column(nullable = false)
-    private Instant createdAt;
-
-    @Column(nullable = false)
-    private Instant updatedAt;
 
     @PrePersist
     void prePersist() {
-        createdAt = Instant.now();
-        updatedAt = createdAt;
-        if (status == null) status = ShipmentStatus.NEW;
-        if (piecesCount == null) piecesCount = 1;
+        if (this.status == null) {
+            this.status = ShipmentStatus.NEW;
+        }
+        if (this.piecesCount == null) {
+            this.piecesCount = 1;
+        }
     }
 
-    @PreUpdate
-    void preUpdate() { updatedAt = Instant.now(); }
 
-    // ... uvnitř třídy ShipmentEntity ...
+
 
     // TOTO PŘIDEJ (přepíšeme Lombok setter):
     public void setStatus(ShipmentStatus status) {
@@ -105,7 +95,7 @@ public class ShipmentEntity {
             // Vypíšeme to do logu jako ERROR
             org.slf4j.LoggerFactory.getLogger(ShipmentEntity.class).error(
                     "!!! POZOR !!! Změna stavu ID={} z '{}' na '{}'. Kdo to volá?",
-                    this.shipmentId,
+                    this.getId(),
                     this.status,
                     status,
                     pastNaVinika // Tady se vypíše celá cesta kódum

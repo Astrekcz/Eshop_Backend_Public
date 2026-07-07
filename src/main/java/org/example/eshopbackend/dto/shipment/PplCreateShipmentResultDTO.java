@@ -6,7 +6,7 @@ import lombok.Data;
 @Builder
 public class PplCreateShipmentResultDTO {
     // ID/dávka/ship id – jak to PPL pojmenovává; když máš jen jedno, používej shipmentId
-    private String shipmentId;
+    private String id;
     private String batchId;            // pokud PPL vrací zvlášť batch ID
     private String trackingNumber;
 

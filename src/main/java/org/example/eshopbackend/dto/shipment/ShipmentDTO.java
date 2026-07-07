@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data @Builder
 public class ShipmentDTO {
-    private Long shipmentId;
+    private Long id;
     private String orderNumber;
     private String trackingNumber;
     private String pplBatchId;

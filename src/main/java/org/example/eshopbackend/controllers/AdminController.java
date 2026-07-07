@@ -1,4 +1,3 @@
-// src/main/java/org/example/zeniqbackend/controllers/AdminController.java
 package org.example.eshopbackend.controllers;
 
 import jakarta.validation.Valid;
@@ -140,13 +139,14 @@ public class AdminController {
         orderService.deleteOrder(id);
     }
 
-    @PostMapping("/products/{productId}/images")
-    public ImageResponseDTO createProductImage(@PathVariable Long Id,
+    @PostMapping("/items/{id}/images")
+    @Deprecated
+    public ImageResponseDTO createProductImage(@PathVariable Long id,
                                                @Valid @RequestBody CreateImageRequestDTO dto) {
-        return imageService.addToItem(Id, dto);
+        return imageService.addToItem(id, dto);
     }
 
-    @GetMapping("/products/{Id}/images")
+    @GetMapping("/items/{Id}/images")
     public List<ImageResponseDTO> listProductImages(@PathVariable Long Id) {
         return imageService.listByItem(Id);
     }

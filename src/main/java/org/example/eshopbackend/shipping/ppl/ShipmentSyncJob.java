@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
+import java.time.LocalDateTime; // Změněno z Instant na LocalDateTime
 import java.util.List;
 
 @Slf4j
@@ -33,20 +33,16 @@ public class ShipmentSyncJob {
 
         for (ShipmentEntity s : active) {
             try {
-                // --- HLAVNÍ OPRAVA ---
-                // Pokud zásilka nemá Tracking Number (tzn. je NEW/PAID a čeká na vyřízení),
-                // tak ji OKAMŽITĚ PŘESKOČÍME.
-                // Nikdy se neptáme PPL podle čísla objednávky, protože to vrací historii.
+                // Pokud zásilka nemá Tracking Number, přeskočíme ji.
                 if (s.getTrackingNumber() == null || s.getTrackingNumber().isBlank()) {
                     continue;
                 }
-                // ---------------------
 
-                // Teď už víme, že máme Tracking Number, můžeme bezpečně volat PPL
+                // Bezpečně voláme PPL
                 var st = pplClient.getStatus(s.getTrackingNumber());
 
                 if (st == null) {
-                    s.setUpdatedAt(Instant.now());
+                    s.setUpdatedAt(LocalDateTime.now());
                     continue;
                 }
 
@@ -54,17 +50,17 @@ public class ShipmentSyncJob {
                 s.setTrackingNumber(st.getTrackingNumber());
                 s.setStatus(mapTrackingToShipment(st.getRawStatus()));
                 s.setStatusText(st.getDescription());
-                s.setUpdatedAt(Instant.now());
+                s.setUpdatedAt(LocalDateTime.now());
 
                 log.debug("[PPL CRON] {} → {}", s.getTrackingNumber(), s.getStatusText());
 
             } catch (Exception ex) {
                 log.warn("[PPL CRON] {} tracking failed: {}", s.getTrackingNumber(), ex.getMessage());
-                // Pokud selže sync (výpadek PPL), označíme jen čas, neměníme status na ERROR,
-                // aby se to zkusilo příště znovu.
-                s.setUpdatedAt(Instant.now());
+                // Pokud selže sync, jen aktualizujeme timestamp (BaseEntity by to zvládla taky, ale pro sichr v paměti)
+                s.setUpdatedAt(LocalDateTime.now());
             }
         }
+        // Na konci metody se transakce commitne a Hibernate změny automaticky spláchne do DB.
     }
 
     private ShipmentStatus mapTrackingToShipment(String raw) {
@@ -77,7 +73,6 @@ public class ShipmentSyncJob {
         if (r.contains("LABEL") || r.contains("PRINT")) return ShipmentStatus.LABEL_READY;
         if (r.contains("REQUEST") || r.contains("ACCEPT") || r.contains("CREATED") || r.contains("PENDING")) return ShipmentStatus.REQUESTED;
 
-        // Default, pokud nepoznáme stav, necháme to, co tam je (nebo REQUESTED)
         return ShipmentStatus.REQUESTED;
     }
 }

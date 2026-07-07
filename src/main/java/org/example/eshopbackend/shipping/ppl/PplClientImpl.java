@@ -142,7 +142,7 @@ public class PplClientImpl implements PplClient {
         }
 
         return PplCreateShipmentResultDTO.builder()
-                .shipmentId(batchId)
+                .id(batchId)
                 .batchId(batchId)
                 .trackingNumber(null)
                 .labelPdf(labelBytes)      // může být null

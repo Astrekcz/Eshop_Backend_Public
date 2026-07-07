@@ -7,8 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class ImageResponseDTO {
-    private Long imageId;
-    private Long productId;
+    private Long Id;
     private String url;
     private String altText;
     private boolean primary;

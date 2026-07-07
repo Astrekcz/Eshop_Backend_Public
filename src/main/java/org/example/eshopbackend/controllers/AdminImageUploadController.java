@@ -33,11 +33,11 @@ public class AdminImageUploadController {
     private static final long MAX_BYTES = 10L * 1024 * 1024; // 10 MB
 
     @PostMapping(
-            value = "/products/{productId}/images/upload",
+            value = "/items/{Id}/images/upload",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ImageResponseDTO uploadAndCreate(
-            @PathVariable Long productId,
+            @PathVariable Long Id,
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "altText", required = false) String altText,
             @RequestParam(value = "primary", required = false) Boolean primary,
@@ -86,7 +86,7 @@ public class AdminImageUploadController {
         Files.createDirectories(dir);
 
         // Výsledný název souboru
-        String filename = productId + "-" + UUID.randomUUID() + "." + ext;
+        String filename = Id + "-" + UUID.randomUUID() + "." + ext;
         Path target = dir.resolve(filename);
 
         // Uložení
@@ -96,7 +96,7 @@ public class AdminImageUploadController {
         String publicUrl = "/static/images/" + filename;
 
 
-        log.info("Uložen obrázek produktu {} → {}", productId, publicUrl);
+        log.info("Uložen obrázek produktu {} → {}", Id, publicUrl);
 
         // Založení záznamu
         CreateImageRequestDTO dto = CreateImageRequestDTO.builder()
@@ -106,6 +106,6 @@ public class AdminImageUploadController {
                 .sortOrder(sortOrder)
                 .build();
 
-        return imageService.addToItem(productId, dto);
+        return imageService.addToItem(Id, dto);
     }
 }

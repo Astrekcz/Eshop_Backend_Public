@@ -26,15 +26,14 @@ public interface ShipmentMapper {
     PplCreateShipmentRequestDTO toPplRequest(OrderEntity order, CreateShipmentCommand cmd, @Context int packagingWeightGrams);
 
     // === Entity -> DTO pro FE/admin ===
-    @Mapping(target = "shipmentId",       source = "shipmentId")
+    @Mapping(target = "id",       source = "id")
     @Mapping(target = "orderNumber",      source = "order.orderNumber")
     @Mapping(target = "trackingNumber",   source = "trackingNumber")
     @Mapping(target = "pplBatchId",       source = "pplBatchId")
     @Mapping(target = "piecesCount",      source = "piecesCount")
     @Mapping(target = "status",           expression = "java(entity.getStatus() == null ? null : entity.getStatus().name())")
     @Mapping(target = "statusText",       source = "statusText")
-    @Mapping(target = "labelDownloadUrl", expression = "java(\"/api/shipping/shipments/\" + entity.getShipmentId() + \"/label\")")
-    ShipmentDTO toDto(ShipmentEntity entity);
+    @Mapping(target = "labelDownloadUrl", expression = "java(\"/api/shipping/shipments/\" + entity.getId() + \"/label\")")    ShipmentDTO toDto(ShipmentEntity entity);
 
     // === Helpers ===
     default String buildStreet(OrderEntity o) {

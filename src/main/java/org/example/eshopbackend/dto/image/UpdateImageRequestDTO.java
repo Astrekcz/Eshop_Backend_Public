@@ -6,7 +6,7 @@ import org.hibernate.validator.constraints.URL;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class UpdateImageRequestDTO {
-    @URL
+
     private String url;
 
     private String altText;

@@ -97,8 +97,6 @@ public class ShipmentService {
             entity.setStatusText("Label pending");
         }
 
-        entity.setCreatedAt(Instant.now());
-        entity.setUpdatedAt(Instant.now());
 
         entity = shipmentRepo.save(entity);
         return mapper.toDto(entity);
@@ -128,8 +126,7 @@ public class ShipmentService {
                 .orElseThrow(() -> new IllegalArgumentException("Shipment not found: " + shipmentId));
 
         if (entity.getTrackingNumber() == null || entity.getTrackingNumber().isBlank()) {
-            // Nemáme zatím tracking – nepanikař; jen aktualizuj timestamp a vrať DTO
-            entity.setUpdatedAt(Instant.now());
+
             shipmentRepo.save(entity);
             return mapper.toDto(entity);
         }
@@ -139,13 +136,11 @@ public class ShipmentService {
             ShipmentStatus newStatus = mapTrackingToShipment(st.getRawStatus());
             entity.setStatus(newStatus);
             entity.setStatusText(st.getDescription());
-            entity.setUpdatedAt(Instant.now());
             shipmentRepo.save(entity);
         } catch (Exception ex) {
             log.error("Tracking refresh failed for {}: {}", entity.getTrackingNumber(), ex.getMessage(), ex);
             entity.setStatus(ShipmentStatus.ERROR);
             entity.setStatusText("Tracking refresh failed: " + ex.getMessage());
-            entity.setUpdatedAt(Instant.now());
             shipmentRepo.save(entity);
         }
 

@@ -3,17 +3,15 @@ package org.example.eshopbackend.entity.shipping;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.eshopbackend.entity.BaseEntity;
 
 @Entity
 @Table(name = "shipment_parcels", indexes = {
         @Index(name = "ix_parcel_shipment", columnList = "shipment_id")
 })
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class ShipmentParcelEntity {
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+public class ShipmentParcelEntity extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long parcelId;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "shipment_id", nullable = false,

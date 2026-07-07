@@ -28,6 +28,6 @@ public class CreateUserRequestDTO {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
 
-    private Role role;  //TODO defaultne musi byt uzivatel s pravama USER
+    private Role role;
 
 }

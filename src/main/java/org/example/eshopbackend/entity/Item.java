@@ -47,7 +47,7 @@ public class Item extends BaseEntity {
             orphanRemoval = true,           // odstranění z kolekce => DELETE v DB
             fetch = FetchType.LAZY
     )
-    @OrderBy("sortOrder ASC, imageId ASC") // konzistentní pořadí
+    @OrderBy("sortOrder ASC, Id ASC") // konzistentní pořadí
     private List<Image> images = new ArrayList<>();
 
 
